@@ -6,31 +6,59 @@ app = Flask(__name__)
 json_data = {}
 
 
+def get_unique_keys_from_array(arr):
+    """Extract unique keys from an array of dictionaries."""
+    unique_keys = set()
+    for item in arr:
+        if isinstance(item, dict):
+            unique_keys.update(item.keys())
+    return unique_keys
+
+def merge_objects(objects):
+    """Merge multiple objects into a single object with all unique keys."""
+    result = {}
+    for obj in objects:
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                if key not in result:
+                    if isinstance(value, list) and value and isinstance(value[0], dict):
+                        result[key] = merge_objects(value)
+                    elif isinstance(value, dict):
+                        result[key] = process_json_data(value)
+                    else:
+                        result[key] = value
+    return result
+
+def process_json_data(data):
+    """Process JSON data to create a template with unique keys."""
+    if isinstance(data, dict):
+        processed = {}
+        for key, value in data.items():
+            if isinstance(value, list) and value and isinstance(value[0], dict):
+                # For arrays of objects, merge them into a single object
+                processed[key] = merge_objects(value)
+            elif isinstance(value, dict):
+                processed[key] = process_json_data(value)
+            else:
+                processed[key] = value
+        return processed
+    elif isinstance(data, list) and data and isinstance(data[0], dict):
+        return merge_objects(data)
+    return data
+
 @app.route("/", methods=["GET", "POST"])
 def upload_and_select():
     global json_data
     if request.method == "POST":
         file = request.files.get("json_file")
         if file and file.filename.endswith(".json"):
-            try:
-                json_data = json.load(file)
-                return render_template_string(
-                    SELECT_FIELDS_TEMPLATE, json_data=json.dumps(json_data)
-                )
-            except json.JSONDecodeError as e:
-                error_message = f"""
-                    <div style="color: red; margin-bottom: 20px;">
-                        Error: Invalid JSON format. Please ensure:
-                        <ul>
-                            <li>All property names are enclosed in double quotes</li>
-                            <li>All strings are enclosed in double quotes</li>
-                            <li>No trailing commas</li>
-                            <li>Valid JSON syntax</li>
-                        </ul>
-                        Technical details: {str(e)}
-                    </div>
-                """
-                return render_template_string(UPLOAD_TEMPLATE + error_message)
+            # Load and process the JSON data
+            original_data = json.load(file)
+            json_data = process_json_data(original_data)
+            print("::::::::::::::::::::  ", json_data)
+            return render_template_string(
+                SELECT_FIELDS_TEMPLATE, json_data=json.dumps(json_data)
+            )
     return render_template_string(UPLOAD_TEMPLATE)
 
 
@@ -58,27 +86,14 @@ def extract_selected_fields(data, selected_keys, prefix=""):
             nested = extract_selected_fields(val, selected_keys, full_key)
             if nested:
                 result[key] = nested
-        elif isinstance(val, list) and val and isinstance(val[0], dict):
-            # For arrays of objects, collect all unique keys
-            unique_keys = set()
-            for item in val:
-                unique_keys.update(item.keys())
-            
-            # Create a list to store filtered items
-            filtered_items = []
-            for item in val:
-                filtered_item = {}
-                for ukey in unique_keys:
-                    item_key = f"{full_key}.{ukey}"
-                    if item_key in selected_keys and ukey in item:
-                        filtered_item[ukey] = item[ukey]
-                if filtered_item:
-                    filtered_items.append(filtered_item)
-            
-            if filtered_items:
-                result[key] = filtered_items
-        elif full_key in selected_keys:
-            result[key] = val
+        elif isinstance(val, list):
+            if val and isinstance(val[0], dict):
+                result[key] = [
+                    extract_selected_fields(item, selected_keys, full_key)
+                    for item in val
+                ]
+            elif full_key in selected_keys:
+                result[key] = val
     return result
 
 
@@ -91,27 +106,21 @@ def render_form_fields(data, prefix=""):
                 html += f"<fieldset><label>{key}</label>"
                 html += render_form_fields(val, full_key)
                 html += "</fieldset>"
-            elif isinstance(val, list) and val and isinstance(val[0], dict):
-                # Get unique keys from all array items
-                unique_keys = sorted(set().union(*(item.keys() for item in val)))
-                
+            elif isinstance(val, list):
                 container_id = f"{full_key.replace('.', '_')}_container"
                 html += f"<fieldset><label>{key}</label><div id='{container_id}'>"
-                
-                # Create a template object with all possible fields
-                template_obj = {k: "" for k in unique_keys}
-                
-                # Add fields for first item only
-                item_id = f"{container_id}_0"
-                html += f"<div id='{item_id}'>"
-                for field_key in unique_keys:
-                    input_name = f"{full_key}[0].{field_key}"
-                    field_value = val[0].get(field_key, "") if val else ""
-                    html += f"<label>{field_key}: <input name='{input_name}' value='{field_value}' /></label><br>"
-                html += f"<button type='button' onclick='removeElement(\"{item_id}\")'>Delete</button><hr></div>"
-                
-                # Add button with template containing all possible fields
-                html += f"</div><button type='button' onclick='addField(\"{container_id}\", \"{full_key}\", {json.dumps(template_obj)})'>Add More</button>"
+                for i, item in enumerate(val):
+                    item_prefix = f"{full_key}[{i}]"
+                    item_id = f"{container_id}_{i}"
+                    html += f"<div id='{item_id}'>"
+                    if isinstance(item, dict):
+                        for subkey, subval in item.items():
+                            input_name = f"{item_prefix}.{subkey}"
+                            html += f"<label>{subkey}: <input name='{input_name}' value='{subval}' /></label><br>"
+                    else:
+                        html += f"<label><input name='{item_prefix}' value='{item}' /></label><br>"
+                    html += f"<button type='button' onclick='removeElement(\"{item_id}\")'>Delete</button><hr></div>"
+                html += f"</div><button type='button' onclick='addField(\"{container_id}\", \"{full_key}\", {json.dumps(val[0]) if val else 'null'})'>Add More</button>"
                 html += "</fieldset>"
             else:
                 html += f"<label>{key}: <input name='{full_key}' value='{val}' /></label><br>"
@@ -161,16 +170,7 @@ function buildCheckboxTree(obj, prefix = '') {
         li.appendChild(checkbox);
         li.appendChild(label);
 
-        if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object') {
-            // For arrays of objects, merge all unique keys
-            const mergedObj = {};
-            val.forEach(item => {
-                Object.keys(item).forEach(k => {
-                    mergedObj[k] = item[k];
-                });
-            });
-            li.appendChild(buildCheckboxTree(mergedObj, fullKey));
-        } else if (typeof val === 'object' && val !== null) {
+        if (typeof val === 'object' && val !== null) {
             li.appendChild(buildCheckboxTree(val, fullKey));
         }
 
@@ -208,24 +208,22 @@ function addField(containerId, fieldPrefix, template) {
     const count = container.children.length;
     const itemId = `${containerId}_${count}`;
     let html = `<div id="${itemId}">`;
-    
-    // Add all fields in the template
-    for (const key in template) {
-        html += `<label>${key}: <input name="${fieldPrefix}[${count}].${key}" value="" /></label><br>`;
+
+    if (typeof template === "object" && template !== null && !Array.isArray(template)) {
+        for (const key in template) {
+            const name = `${fieldPrefix}[${count}].${key}`;
+            html += `<label>${key}: <input name="${name}" value="" /></label><br>`;
+        }
+    } else {
+        const name = `${fieldPrefix}[${count}]`;
+        html += `<label><input name="${name}" value="" /></label><br>`;
     }
-    
+
     html += `<button type="button" onclick="removeElement('${itemId}')">Delete</button><hr></div>`;
     container.insertAdjacentHTML('beforeend', html);
 }
 </script>
-<style>
-fieldset { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
-label { display: block; margin: 5px 0; }
-input { margin-left: 5px; }
-button { margin: 5px 0; }
-hr { margin: 10px 0; }
-</style>
 """
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port = 5001)
