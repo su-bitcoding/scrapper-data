@@ -49,6 +49,12 @@
         ]
       }
     ],
+    "charges": [
+      "hjhjh",
+      "jjjjjj",
+      "jhjhjhjhjhj",
+      "jhjhjhjhjhjhjhjhj"
+    ],
     "generatorId": "1",
     "responseCode": 200,
     "responseMessage": "Success"

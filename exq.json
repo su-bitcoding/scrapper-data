@@ -20,198 +20,37 @@
       {
         "name1": "Canada",
         "code1": "CA",
-        "test1": "3"
+        "test1": "3",
+        "charges1": [
+          {
+            "classType": "ChargeResource",
+            "generatorId": "12",
+            "id": 6207257,
+            "parentJobId": 6207256,
+            "price": 20.0,
+            "description": "PrePress File setup",
+            "quantity": 1.0,
+            "salesCategory": {
+              "generatorId": "13",
+              "id": 1751,
+              "salesCatId": 4,
+              "name": "File Handling",
+              "glAccount": "4-1004"
+            },
+            "taxRecord": {
+              "generatorId": "14",
+              "id": 1085180,
+              "taxableTotal": 20.0,
+              "nonTaxableTotal": 0.0,
+              "discount": 0.0,
+              "taxAmount": 2.0
+            }
+          }
+        ]
       }
     ],
     "generatorId": "1",
     "responseCode": 200,
-    "responseMessage": "Success",
-    "response": {
-      "generatorId": "2",
-      "id": 6207250,
-      "created": "2025-04-10 14:10:45",
-      "modified": "2025-04-10 16:43:43",
-      "invoiceNumber": "94647",
-      "title": "Colour digital print",
-      "account": {
-        "generatorId": "3",
-        "isDeleted": false,
-        "id": 6207243,
-        "walkIn": true,
-        "accountId": "",
-        "accountName": "Maxwell",
-        "type": "cash_check_credit",
-        "status": "CustomerStatusInactive"
-      }
-    },
-    "jobs": [
-      {
-        "classType": "JobBaseResource",
-        "generatorId": "5",
-        "id": 6207256,
-        "description": "Colour digital print A3 pattern. Print file to be setup by KKAlex (280x repeated logo, 19x19mm)",
-        "jobType": "Color",
-        "pressQty": 1,
-        "priceIncludingTax": 27.5,
-        "priceTax": 2.5,
-        "priceExcludingTax": 25.0,
-        "unitCost": 0.0,
-        "qtyOrdered": 1,
-        "jobIndex": 1,
-        "defaultJob": true,
-        "jobGroup": 1,
-        "salesCategory": {
-          "generatorId": "6",
-          "id": 1760,
-          "salesCatId": 13,
-          "name": "Digital Colour",
-          "glAccount": "4-1013"
-        },
-        "taxable": true,
-        "finished": true,
-        "sheets": 1,
-        "totalCopies": 1,
-        "numCopies": 1,
-        "numOn": 1,
-        "numUp": 1,
-        "markup": 0.0,
-        "singleSided": true,
-        "stock": {
-          "generatorId": "7",
-          "id": 8982,
-          "name": "KK Bond A3"
-        },
-        "foldedSize": {
-          "generatorId": "8",
-          "id": 6207252,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "finishSize": {
-          "generatorId": "9",
-          "id": 6207251,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "runSize": {
-          "generatorId": "10",
-          "id": 6207255,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "parentSize": {
-          "generatorId": "11",
-          "id": 6207254,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "charges": [
-          {
-            "classType": "ChargeResource",
-            "generatorId": "12",
-            "id": 6207257,
-            "parentJobId": 6207256,
-            "price": 20.0,
-            "description": "PrePress File setup",
-            "quantity": 1.0,
-            "salesCategory": {
-              "generatorId": "13",
-              "id": 1751,
-              "salesCatId": 4,
-              "name": "File Handling",
-              "glAccount": "4-1004"
-            },
-            "taxRecord": {
-              "generatorId": "14",
-              "id": 1085180,
-              "taxableTotal": 20.0,
-              "nonTaxableTotal": 0.0,
-              "discount": 0.0,
-              "taxAmount": 2.0
-            }
-          }
-        ],
-        "binderyWaste": 0,
-        "estWaste": 0,
-        "webWorkSheets": []
-      },
-      {
-        "classType": "JobBaseResource",
-        "finished": true,
-        "sheets": 1,
-        "totalCopies": 1,
-        "numCopies": 1,
-        "numOn": 1,
-        "numUp": 1,
-        "markup": 0.0,
-        "singleSided": true,
-        "stock": {
-          "generatorId": "7",
-          "id": 8982,
-          "name": "KK Bond A3"
-        },
-        "foldedSize": {
-          "generatorId": "8",
-          "id": 6207252,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "finishSize": {
-          "generatorId": "9",
-          "id": 6207251,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "runSize": {
-          "generatorId": "10",
-          "id": 6207255,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "parentSize": {
-          "generatorId": "11",
-          "id": 6207254,
-          "name": "A3",
-          "width": 297.0,
-          "height": 420.0
-        },
-        "charges": [
-          {
-            "classType": "ChargeResource",
-            "generatorId": "12",
-            "id": 6207257,
-            "parentJobId": 6207256,
-            "price": 20.0,
-            "description": "PrePress File setup",
-            "quantity": 1.0,
-            "salesCategory": {
-              "generatorId": "13",
-              "id": 1751,
-              "salesCatId": 4,
-              "name": "File Handling",
-              "glAccount": "4-1004"
-            },
-            "taxRecord": {
-              "generatorId": "14",
-              "id": 1085180,
-              "taxableTotal": 20.0,
-              "nonTaxableTotal": 0.0,
-              "discount": 0.0,
-              "taxAmount": 2.0
-            }
-          }
-        ],
-        "binderyWaste": 0,
-        "estWaste": 0,
-        "webWorkSheets": []
-      }
-    ]
+    "responseMessage": "Success"
   }
 }
